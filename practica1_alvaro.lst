@@ -1,0 +1,604 @@
+GAMS 25.1.3  r4e34d435fbd Released Oct 30, 2018 WEX-WEI x86 64bit/MS Windows - 11/17/19 11:25:38 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  set
+   2      i posiciones geograficas del mercado /AS,AN,EU,AF,ASI,OC/
+   3      j factorias /A,B,C,D/
+   4      k puertos /Bilbao,Roterdan,Amberes,Barcelona,Valencia,Marsella/
+   5      t centros de ensamblaje /Madrid, Paris/
+   6      ;
+   7   
+   8  TABLE
+   9      CosteFP(j,k) Coste de transporte por unidades desde cada factoria hasta el puerto
+  10   
+  11            Bilbao    Roterdan    Amberes    Barcelona   Valencia    Marsella
+  12   
+  13      A       9           8           2           0          0            0
+  14      B       6           6           9           0          0            0
+  15      C       0           0           0           9          7            7
+  16      D       0           0           0           6          6            8   ;
+  17  TABLE
+  18      CostePC(t,k) Coste desde cada puerto a los centros de ensamblaje
+  19   
+  20              Bilbao  Roterdan    Amberes     Barcelona   Valencia    Marsella
+  21   
+  22      Madrid     3        4           2           4           3           2
+  23      Paris      4        2           3           5           3           1   ;
+  24   
+  25  Parameter
+  26  *Produccion maxima de las factorias
+  27      ProdMaxFact(j)
+  28          / A 28000
+  29            B 25000
+  30            C 35000
+  31            D 15000 /
+  32   
+  33  *Capacidad maxima de esamblaje de las fabricas
+  34      CapaMaxEsam(t)
+  35          / Madrid 25000
+  36            Paris  25000 /
+  37   
+  38  *Cantidad maxima de producto que puede circular por cada puerto
+  39      ProductoPorPuerto(k)
+  40          / Bilbao    18000
+  41            Roterdan  18000
+  42            Amberes   18000
+  43            Barcelona 18000
+  44            Valencia  18000
+  45            Marsella  18000 /
+  46   
+  47  *Minimi de demanda del producto final a cada uno de los mercados
+  48      MinDemanda(i)
+  49          / AS    5000
+  50            AN    5000
+  51            EU    5000
+  52            AF    5000
+  53            ASI   5000
+  54            OC    5000 /
+  55   
+  56  *Maximo de demanda del prodcuto final a cada uno de los mercados
+  57      MaxDemanda(i)
+  58          / AS    10000
+  59            AN    10000
+  60            EU    10000
+  61            AF    10000
+  62            ASI   10000
+  63            OC    10000 /
+  64   
+  65  *Beneficio Obtenido por cada unidad
+  66      Beneficio(i)
+  67          / AS    20
+  68            AN    25
+  69            EU    30
+  70            AF    10
+  71            ASI   15
+  72            OC    12 /
+  73  ;
+  74  Free variable
+  75      z beneficio menos los costes
+  76  ;
+  77  *Vamos a tener  tres variables
+  78  *  Xi numero de unidades vendidas en el mercado i
+  79  *  Fjk numero de componentes que estan en la factoria j y van al puerto k
+  80  *  Ptk numero de componenetes que son transportados del puerto k al centro de ensamblaje t
+  81  positive variable
+  82      x(i) numero de unidades vendidas en el mercado i
+  83      F(j,k) numero de componenetes que salen de la  factoria j y van al puerto k
+  84  *f(j) numero de componentes que salen de la factoria j
+  85      P(t,k) numero de componentes que son transportados del puerto k al centro de ensamblaje t
+  86  *p(k) numero de componentes que se trasporta en el puerto k
+  87  ;
+  88   
+  89  equations
+  90      obj funcion objetivo que quiere maximizar los beneficios
+  91      prodMax(j,k) produccion maxima en las factorias
+  92      prodMin(j,k)
+  93      MaxEsam(t,k) capacidad maxima de ensamblaje de las fabricas de Madrid y Paris
+  94      MinEsam(t,k)
+  95      ProdMaxPuertos(j,t,k) producto maximo que puede circular por los puertos
+  96      MinMercado(i) minimo de producto que debe de llegar a los mercados
+  97      MaxMercado(i) maximo de producto que debe de llegar a los mercados
+  98  ;
+  99   
+ 100  obj.. sum(i,x(i)*Beneficio(i))-(sum((j,k),F(j,k)*CosteFP(j,k))+sum((t,k),P(t,k)*CostePC(t,k)))=e=z;
+ 101  prodMax(j,k).. F(j,k)=l=ProdMaxFact(j);
+ 102  prodMin(j,k).. F(j,k)=g=0;
+ 103  MaxEsam(t,k).. P(t,k)=l=CapaMaxEsam(t);
+ 104  MinEsam(t,k).. P(t,k)=g=0;
+ 105  ProdMaxPuertos(j,t,k).. F(j,k)-P(t,k)=l=ProductoPorPuerto(k);
+ 106  MinMercado(i).. x(i)=g=MinDemanda(i);
+ 107  MaxMercado(i).. x(i)=l=MaxDemanda(i);
+ 108   
+ 109   
+ 110  Model producto /all/
+ 111   
+ 112  Solve producto using lp maximizing z;
+ 113   
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.3 r4e34d435fbd WEX-WEI
+GAMS 25.1.3  r4e34d435fbd Released Oct 30, 2018 WEX-WEI x86 64bit/MS Windows - 11/17/19 11:25:38 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE producto Using LP From line 112
+
+
+---- obj  =E=  funcion objetivo que quiere maximizar los beneficios
+
+obj..  - z + 20*x(AS) + 25*x(AN) + 30*x(EU) + 10*x(AF) + 15*x(ASI) + 12*x(OC) - 9*F(A,Bilbao) - 8*F(A,Roterdan) - 2*F(A,Amberes) - 6*F(B,Bilbao) - 6*F(B,Roterdan) - 9*F(B,Amberes) - 9*F(C,Barcelona) - 7*F(C,Valencia) - 7*F(C,Marsella) - 6*F(D,Barcelona)
+     
+      - 6*F(D,Valencia) - 8*F(D,Marsella) - 3*P(Madrid,Bilbao) - 4*P(Madrid,Roterdan) - 2*P(Madrid,Amberes) - 4*P(Madrid,Barcelona) - 3*P(Madrid,Valencia) - 2*P(Madrid,Marsella) - 4*P(Paris,Bilbao) - 2*P(Paris,Roterdan) - 3*P(Paris,Amberes)
+     
+      - 5*P(Paris,Barcelona) - 3*P(Paris,Valencia) - P(Paris,Marsella) =E= 0 ; (LHS = 0)
+     
+
+---- prodMax  =L=  produccion maxima en las factorias
+
+prodMax(A,Bilbao)..  F(A,Bilbao) =L= 28000 ; (LHS = 0)
+     
+prodMax(A,Roterdan)..  F(A,Roterdan) =L= 28000 ; (LHS = 0)
+     
+prodMax(A,Amberes)..  F(A,Amberes) =L= 28000 ; (LHS = 0)
+     
+REMAINING 21 ENTRIES SKIPPED
+
+
+---- prodMin  =G=  
+
+prodMin(A,Bilbao)..  F(A,Bilbao) =G= 0 ; (LHS = 0)
+     
+prodMin(A,Roterdan)..  F(A,Roterdan) =G= 0 ; (LHS = 0)
+     
+prodMin(A,Amberes)..  F(A,Amberes) =G= 0 ; (LHS = 0)
+     
+REMAINING 21 ENTRIES SKIPPED
+
+
+---- MaxEsam  =L=  capacidad maxima de ensamblaje de las fabricas de Madrid y Paris
+
+MaxEsam(Madrid,Bilbao)..  P(Madrid,Bilbao) =L= 25000 ; (LHS = 0)
+     
+MaxEsam(Madrid,Roterdan)..  P(Madrid,Roterdan) =L= 25000 ; (LHS = 0)
+     
+MaxEsam(Madrid,Amberes)..  P(Madrid,Amberes) =L= 25000 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- MinEsam  =G=  
+
+MinEsam(Madrid,Bilbao)..  P(Madrid,Bilbao) =G= 0 ; (LHS = 0)
+     
+MinEsam(Madrid,Roterdan)..  P(Madrid,Roterdan) =G= 0 ; (LHS = 0)
+     
+MinEsam(Madrid,Amberes)..  P(Madrid,Amberes) =G= 0 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- ProdMaxPuertos  =L=  producto maximo que puede circular por los puertos
+
+ProdMaxPuertos(A,Madrid,Bilbao)..  F(A,Bilbao) - P(Madrid,Bilbao) =L= 18000 ; (LHS = 0)
+     
+ProdMaxPuertos(A,Madrid,Roterdan)..  F(A,Roterdan) - P(Madrid,Roterdan) =L= 18000 ; (LHS = 0)
+     
+ProdMaxPuertos(A,Madrid,Amberes)..  F(A,Amberes) - P(Madrid,Amberes) =L= 18000 ; (LHS = 0)
+     
+REMAINING 45 ENTRIES SKIPPED
+
+
+---- MinMercado  =G=  minimo de producto que debe de llegar a los mercados
+
+MinMercado(AS)..  x(AS) =G= 5000 ; (LHS = 0, INFES = 5000 ****)
+     
+MinMercado(AN)..  x(AN) =G= 5000 ; (LHS = 0, INFES = 5000 ****)
+     
+MinMercado(EU)..  x(EU) =G= 5000 ; (LHS = 0, INFES = 5000 ****)
+     
+REMAINING 3 ENTRIES SKIPPED
+
+
+---- MaxMercado  =L=  maximo de producto que debe de llegar a los mercados
+
+MaxMercado(AS)..  x(AS) =L= 10000 ; (LHS = 0)
+     
+MaxMercado(AN)..  x(AN) =L= 10000 ; (LHS = 0)
+     
+MaxMercado(EU)..  x(EU) =L= 10000 ; (LHS = 0)
+     
+REMAINING 3 ENTRIES SKIPPED
+
+GAMS 25.1.3  r4e34d435fbd Released Oct 30, 2018 WEX-WEI x86 64bit/MS Windows - 11/17/19 11:25:38 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE producto Using LP From line 112
+
+
+---- z  beneficio menos los costes
+
+z
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       obj
+
+
+---- x  numero de unidades vendidas en el mercado i
+
+x(AS)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       20       obj
+        1       MinMercado(AS)
+        1       MaxMercado(AS)
+
+x(AN)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       25       obj
+        1       MinMercado(AN)
+        1       MaxMercado(AN)
+
+x(EU)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       30       obj
+        1       MinMercado(EU)
+        1       MaxMercado(EU)
+
+REMAINING 3 ENTRIES SKIPPED
+
+---- F  numero de componenetes que salen de la  factoria j y van al puerto k
+
+F(A,Bilbao)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -9       obj
+        1       prodMax(A,Bilbao)
+        1       prodMin(A,Bilbao)
+        1       ProdMaxPuertos(A,Madrid,Bilbao)
+        1       ProdMaxPuertos(A,Paris,Bilbao)
+
+F(A,Roterdan)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -8       obj
+        1       prodMax(A,Roterdan)
+        1       prodMin(A,Roterdan)
+        1       ProdMaxPuertos(A,Madrid,Roterdan)
+        1       ProdMaxPuertos(A,Paris,Roterdan)
+
+F(A,Amberes)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -2       obj
+        1       prodMax(A,Amberes)
+        1       prodMin(A,Amberes)
+        1       ProdMaxPuertos(A,Madrid,Amberes)
+        1       ProdMaxPuertos(A,Paris,Amberes)
+
+REMAINING 21 ENTRIES SKIPPED
+
+---- P  numero de componentes que son transportados del puerto k al centro de ensamblaje t
+
+P(Madrid,Bilbao)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -3       obj
+        1       MaxEsam(Madrid,Bilbao)
+        1       MinEsam(Madrid,Bilbao)
+       -1       ProdMaxPuertos(A,Madrid,Bilbao)
+       -1       ProdMaxPuertos(B,Madrid,Bilbao)
+       -1       ProdMaxPuertos(C,Madrid,Bilbao)
+       -1       ProdMaxPuertos(D,Madrid,Bilbao)
+
+P(Madrid,Roterdan)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -4       obj
+        1       MaxEsam(Madrid,Roterdan)
+        1       MinEsam(Madrid,Roterdan)
+       -1       ProdMaxPuertos(A,Madrid,Roterdan)
+       -1       ProdMaxPuertos(B,Madrid,Roterdan)
+       -1       ProdMaxPuertos(C,Madrid,Roterdan)
+       -1       ProdMaxPuertos(D,Madrid,Roterdan)
+
+P(Madrid,Amberes)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -2       obj
+        1       MaxEsam(Madrid,Amberes)
+        1       MinEsam(Madrid,Amberes)
+       -1       ProdMaxPuertos(A,Madrid,Amberes)
+       -1       ProdMaxPuertos(B,Madrid,Amberes)
+       -1       ProdMaxPuertos(C,Madrid,Amberes)
+       -1       ProdMaxPuertos(D,Madrid,Amberes)
+
+REMAINING 9 ENTRIES SKIPPED
+GAMS 25.1.3  r4e34d435fbd Released Oct 30, 2018 WEX-WEI x86 64bit/MS Windows - 11/17/19 11:25:38 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE producto Using LP From line 112
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           8     SINGLE EQUATIONS          133
+BLOCKS OF VARIABLES           4     SINGLE VARIABLES           43
+NON ZERO ELEMENTS           211
+
+
+GENERATION TIME      =        0.016 SECONDS      4 MB  25.1.3 r4e34d435fbd WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      4 MB  25.1.3 r4e34d435fbd WEX-WEI
+GAMS 25.1.3  r4e34d435fbd Released Oct 30, 2018 WEX-WEI x86 64bit/MS Windows - 11/17/19 11:25:38 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE producto Using LP From line 112
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   producto            OBJECTIVE  z
+     TYPE    LP                  DIRECTION  MAXIMIZE
+     SOLVER  CPLEX               FROM LINE  112
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE          1120000.0000
+
+ RESOURCE USAGE, LIMIT          0.000      1000.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   25.1.3 r4e34d435fbd Released Oct 30, 2018 WEI x86 64bit/MS Wi
+Cplex 12.8.0.0
+
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :     1120000.000000
+
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU obj                 .              .              .            -1.0000      
+
+  obj  funcion objetivo que quiere maximizar los beneficios
+
+---- EQU prodMax  produccion maxima en las factorias
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+A.Bilbao           -INF             .         28000.0000          .          
+A.Roterdan         -INF             .         28000.0000          .          
+A.Amberes          -INF             .         28000.0000          .          
+A.Barcelona        -INF             .         28000.0000          .          
+A.Valencia         -INF             .         28000.0000          .          
+A.Marsella         -INF             .         28000.0000          .          
+B.Bilbao           -INF             .         25000.0000          .          
+B.Roterdan         -INF             .         25000.0000          .          
+B.Amberes          -INF             .         25000.0000          .          
+B.Barcelona        -INF             .         25000.0000          .          
+B.Valencia         -INF             .         25000.0000          .          
+B.Marsella         -INF             .         25000.0000          .          
+C.Bilbao           -INF             .         35000.0000          .          
+C.Roterdan         -INF             .         35000.0000          .          
+C.Amberes          -INF             .         35000.0000          .          
+C.Barcelona        -INF             .         35000.0000          .          
+C.Valencia         -INF             .         35000.0000          .          
+C.Marsella         -INF             .         35000.0000          .          
+D.Bilbao           -INF             .         15000.0000          .          
+D.Roterdan         -INF             .         15000.0000          .          
+D.Amberes          -INF             .         15000.0000          .          
+D.Barcelona        -INF             .         15000.0000          .          
+D.Valencia         -INF             .         15000.0000          .          
+D.Marsella         -INF             .         15000.0000          .          
+
+---- EQU prodMin  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+A.Bilbao             .              .            +INF             .          
+A.Roterdan           .              .            +INF             .          
+A.Amberes            .              .            +INF             .          
+A.Barcelona          .              .            +INF             .          
+A.Valencia           .              .            +INF             .          
+A.Marsella           .              .            +INF             .          
+B.Bilbao             .              .            +INF             .          
+B.Roterdan           .              .            +INF             .          
+B.Amberes            .              .            +INF             .          
+B.Barcelona          .              .            +INF             .          
+B.Valencia           .              .            +INF             .          
+B.Marsella           .              .            +INF             .          
+C.Bilbao             .              .            +INF             .          
+C.Roterdan           .              .            +INF             .          
+C.Amberes            .              .            +INF             .          
+C.Barcelona          .              .            +INF             .          
+C.Valencia           .              .            +INF             .          
+C.Marsella           .              .            +INF             .          
+D.Bilbao             .              .            +INF             .          
+D.Roterdan           .              .            +INF             .          
+D.Amberes            .              .            +INF             .          
+D.Barcelona          .              .            +INF             .          
+D.Valencia           .              .            +INF             .          
+D.Marsella           .              .            +INF             .          
+
+---- EQU MaxEsam  capacidad maxima de ensamblaje de las fabricas de Madrid y Paris
+
+                        LOWER          LEVEL          UPPER         MARGINAL
+
+Madrid.Bilbao           -INF             .         25000.0000          .          
+Madrid.Roterdan         -INF             .         25000.0000          .          
+Madrid.Amberes          -INF             .         25000.0000          .          
+Madrid.Barcelona        -INF             .         25000.0000          .          
+Madrid.Valencia         -INF             .         25000.0000          .          
+Madrid.Marsella         -INF             .         25000.0000          .          
+Paris .Bilbao           -INF             .         25000.0000          .          
+Paris .Roterdan         -INF             .         25000.0000          .          
+Paris .Amberes          -INF             .         25000.0000          .          
+Paris .Barcelona        -INF             .         25000.0000          .          
+Paris .Valencia         -INF             .         25000.0000          .          
+Paris .Marsella         -INF             .         25000.0000          .          
+
+---- EQU MinEsam  
+
+                        LOWER          LEVEL          UPPER         MARGINAL
+
+Madrid.Bilbao             .              .            +INF             .          
+Madrid.Roterdan           .              .            +INF             .          
+Madrid.Amberes            .              .            +INF             .          
+Madrid.Barcelona          .              .            +INF             .          
+Madrid.Valencia           .              .            +INF             .          
+Madrid.Marsella           .              .            +INF             .          
+Paris .Bilbao             .              .            +INF             .          
+Paris .Roterdan           .              .            +INF             .          
+Paris .Amberes            .              .            +INF             .          
+Paris .Barcelona          .              .            +INF             .          
+Paris .Valencia           .              .            +INF             .          
+Paris .Marsella           .              .            +INF             .          
+
+---- EQU ProdMaxPuertos  producto maximo que puede circular por los puertos
+
+                          LOWER          LEVEL          UPPER         MARGINAL
+
+A.Madrid.Bilbao           -INF             .         18000.0000          .          
+A.Madrid.Roterdan         -INF             .         18000.0000          .          
+A.Madrid.Amberes          -INF             .         18000.0000          .          
+A.Madrid.Barcelona        -INF             .         18000.0000          .          
+A.Madrid.Valencia         -INF             .         18000.0000          .          
+A.Madrid.Marsella         -INF             .         18000.0000          .          
+A.Paris .Bilbao           -INF             .         18000.0000          .          
+A.Paris .Roterdan         -INF             .         18000.0000          .          
+A.Paris .Amberes          -INF             .         18000.0000          .          
+A.Paris .Barcelona        -INF             .         18000.0000          .          
+A.Paris .Valencia         -INF             .         18000.0000          .          
+A.Paris .Marsella         -INF             .         18000.0000          .          
+B.Madrid.Bilbao           -INF             .         18000.0000          .          
+B.Madrid.Roterdan         -INF             .         18000.0000          .          
+B.Madrid.Amberes          -INF             .         18000.0000          .          
+B.Madrid.Barcelona        -INF             .         18000.0000          .          
+B.Madrid.Valencia         -INF             .         18000.0000          .          
+B.Madrid.Marsella         -INF             .         18000.0000          .          
+B.Paris .Bilbao           -INF             .         18000.0000          .          
+B.Paris .Roterdan         -INF             .         18000.0000          .          
+B.Paris .Amberes          -INF             .         18000.0000          .          
+B.Paris .Barcelona        -INF             .         18000.0000          .          
+B.Paris .Valencia         -INF             .         18000.0000          .          
+B.Paris .Marsella         -INF             .         18000.0000          .          
+C.Madrid.Bilbao           -INF             .         18000.0000          .          
+C.Madrid.Roterdan         -INF             .         18000.0000          .          
+C.Madrid.Amberes          -INF             .         18000.0000          .          
+C.Madrid.Barcelona        -INF             .         18000.0000          .          
+C.Madrid.Valencia         -INF             .         18000.0000          .          
+C.Madrid.Marsella         -INF             .         18000.0000          .          
+C.Paris .Bilbao           -INF             .         18000.0000          .          
+C.Paris .Roterdan         -INF             .         18000.0000          .          
+C.Paris .Amberes          -INF             .         18000.0000          .          
+C.Paris .Barcelona        -INF             .         18000.0000          .          
+C.Paris .Valencia         -INF             .         18000.0000          .          
+C.Paris .Marsella         -INF             .         18000.0000          .          
+D.Madrid.Bilbao           -INF             .         18000.0000          .          
+D.Madrid.Roterdan         -INF             .         18000.0000          .          
+D.Madrid.Amberes          -INF             .         18000.0000          .          
+D.Madrid.Barcelona        -INF             .         18000.0000          .          
+D.Madrid.Valencia         -INF             .         18000.0000          .          
+D.Madrid.Marsella         -INF             .         18000.0000          .          
+D.Paris .Bilbao           -INF             .         18000.0000          .          
+D.Paris .Roterdan         -INF             .         18000.0000          .          
+D.Paris .Amberes          -INF             .         18000.0000          .          
+D.Paris .Barcelona        -INF             .         18000.0000          .          
+D.Paris .Valencia         -INF             .         18000.0000          .          
+D.Paris .Marsella         -INF             .         18000.0000          .          
+
+---- EQU MinMercado  minimo de producto que debe de llegar a los mercados
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+AS       5000.0000     10000.0000        +INF             .          
+AN       5000.0000     10000.0000        +INF             .          
+EU       5000.0000     10000.0000        +INF             .          
+AF       5000.0000     10000.0000        +INF             .          
+ASI      5000.0000     10000.0000        +INF             .          
+OC       5000.0000     10000.0000        +INF             .          
+
+---- EQU MaxMercado  maximo de producto que debe de llegar a los mercados
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+AS         -INF        10000.0000     10000.0000        20.0000      
+AN         -INF        10000.0000     10000.0000        25.0000      
+EU         -INF        10000.0000     10000.0000        30.0000      
+AF         -INF        10000.0000     10000.0000        10.0000      
+ASI        -INF        10000.0000     10000.0000        15.0000      
+OC         -INF        10000.0000     10000.0000        12.0000      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR z                 -INF      1120000.0000        +INF             .          
+
+  z  beneficio menos los costes
+
+---- VAR x  numero de unidades vendidas en el mercado i
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+AS           .         10000.0000        +INF             .          
+AN           .         10000.0000        +INF             .          
+EU           .         10000.0000        +INF             .          
+AF           .         10000.0000        +INF             .          
+ASI          .         10000.0000        +INF             .          
+OC           .         10000.0000        +INF             .          
+
+---- VAR F  numero de componenetes que salen de la  factoria j y van al puerto k
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+A.Bilbao             .              .            +INF           -9.0000      
+A.Roterdan           .              .            +INF           -8.0000      
+A.Amberes            .              .            +INF           -2.0000      
+A.Barcelona          .              .            +INF            EPS         
+A.Valencia           .              .            +INF            EPS         
+A.Marsella           .              .            +INF            EPS         
+B.Bilbao             .              .            +INF           -6.0000      
+B.Roterdan           .              .            +INF           -6.0000      
+B.Amberes            .              .            +INF           -9.0000      
+B.Barcelona          .              .            +INF            EPS         
+B.Valencia           .              .            +INF            EPS         
+B.Marsella           .              .            +INF            EPS         
+C.Bilbao             .              .            +INF            EPS         
+C.Roterdan           .              .            +INF            EPS         
+C.Amberes            .              .            +INF            EPS         
+C.Barcelona          .              .            +INF           -9.0000      
+C.Valencia           .              .            +INF           -7.0000      
+C.Marsella           .              .            +INF           -7.0000      
+D.Bilbao             .              .            +INF            EPS         
+D.Roterdan           .              .            +INF            EPS         
+D.Amberes            .              .            +INF            EPS         
+D.Barcelona          .              .            +INF           -6.0000      
+D.Valencia           .              .            +INF           -6.0000      
+D.Marsella           .              .            +INF           -8.0000      
+
+---- VAR P  numero de componentes que son transportados del puerto k al centro de ensamblaje t
+
+                        LOWER          LEVEL          UPPER         MARGINAL
+
+Madrid.Bilbao             .              .            +INF           -3.0000      
+Madrid.Roterdan           .              .            +INF           -4.0000      
+Madrid.Amberes            .              .            +INF           -2.0000      
+Madrid.Barcelona          .              .            +INF           -4.0000      
+Madrid.Valencia           .              .            +INF           -3.0000      
+Madrid.Marsella           .              .            +INF           -2.0000      
+Paris .Bilbao             .              .            +INF           -4.0000      
+Paris .Roterdan           .              .            +INF           -2.0000      
+Paris .Amberes            .              .            +INF           -3.0000      
+Paris .Barcelona          .              .            +INF           -5.0000      
+Paris .Valencia           .              .            +INF           -3.0000      
+Paris .Marsella           .              .            +INF           -1.0000      
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+
+
+EXECUTION TIME       =        0.015 SECONDS      2 MB  25.1.3 r4e34d435fbd WEX-WEI
+
+
+USER: GAMS Development Corporation, USA              G871201/0000CA-ANY
+      Free Demo, +1 202-342-0180, support@gams.com, www.gams.com DC0000
+
+
+**** FILE SUMMARY
+
+Input      D:\Apuntes\Tercero\IO\Practica1\practica1_alvaro.gms
+Output     D:\Apuntes\Tercero\IO\Practica1\practica1_alvaro.lst
