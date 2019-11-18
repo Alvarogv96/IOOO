@@ -1,16 +1,16 @@
 set
-    i posiciones geograficas del mercado /AS,AN,EU,AF,ASI,OC/
+    mercados posiciones geograficas del mercado /AS,AN,EU,AF,ASI,OC/
 *   j factorias /A,B,C,D/
-    q factoria1 /A,B/
-    w factoria2 /C,D/
+    factC1 factoria1 /A,B/
+    factC2 factoria2 /C,D/
 *    k puertos /Bilbao,Roterdan,Amberes,Barcelona,Valencia,Marsella/
-    l puertos1/Bilbao,Roterdan,Amberes/
-    p puertos2 /Barcelona,Valencia,Marsella/
-    t centros de ensamblaje /Madrid, Paris/
+    puertosC1 puertos1/Bilbao,Roterdan,Amberes/
+    puertosC2 puertos2 /Barcelona,Valencia,Marsella/
+    fabricas centros de ensamblaje /Madrid, Paris/
 ;
 
 TABLE
-    CosteFP1(q,l) Coste de transporte por unidades desde las factorias A y B hasta los puertos 1
+    CosteFP1(factC1,puertosC1) Coste de transporte por unidades desde las factorias A y B hasta los puertos 1
 
           Bilbao    Roterdan   Amberes   
 
@@ -20,14 +20,14 @@ TABLE
 ;
 
 TABLE
-    CosteFP2(w,p) Coste de transporte por unidades desde las factorias C y D hasta los puertos 2
+    CosteFP2(factC2,puertosC2) Coste de transporte por unidades desde las factorias C y D hasta los puertos 2
 
         Barcelona   Valencia    Marsella
     C       9          7            7
     D       6          6            8
 ;
 TABLE
-    CostePC1(t,l) Coste de transporte de unidades de los puertos 1 a los centros de ensamblaje
+    CostePC1(fabricas,puertosC1) Coste de transporte de unidades de los puertos 1 a los centros de ensamblaje
 
             Bilbao  Roterdan    Amberes     
 
@@ -36,7 +36,7 @@ TABLE
 ;
 
 TABLE
-    CostePC2(t,p) Coste de transporte de unidades de los puesrtos 2 a los centros de ensamblaje
+    CostePC2(fabricas,puertosC2) Coste de transporte de unidades de los puesrtos 2 a los centros de ensamblaje
 
             Barcelona   Valencia    Marsella
     Madrid      4           3           2
@@ -45,15 +45,15 @@ TABLE
 
 Parameter
 *Produccion maxima de las factorias1
-    ProdMaxFact1(q)
+    ProdMaxFact1(factC1)
         / A 28000
           B 25000/
 *Produccion maxima de las factorias2
-    ProdMaxFact2(w)    
+    ProdMaxFact2(factC2)    
           /C 35000
            D 15000 /
 *Beneficio Obtenido por cada unidad
-    Beneficio(i)
+    Beneficio(mercados)
         / AS    20
           AN    25
           EU    30
@@ -75,40 +75,59 @@ Free variable
 *  Fjk numero de componentes que estan en la factoria j y van al puerto k
 *  Ptk numero de componenetes que son transportados del puerto k al centro de ensamblaje t
 positive variable
-    x(i) numero de unidades vendidas en el mercado i
-    F(q,l) numero de componenetes que salen de la  factoria q  y van a los puertos l  
-    Y(w,p) numeor de componenetes que salen de la factoria w  y van a los puertos p
-    G(t,l) numero de componentes que son transportados del puerto l al centro de ensamblaje t
-    O(t,p) numero de componentes que son transportado del puerto p al centro de ensamblaje t
+    x(mercados) numero de unidades vendidas en el mercado i
+    C1Puerto(factC1,puertosC1) numero de componenetes que salen de la  factoria q  y van a los puertos l  
+    C2Puerto(factC2,puertosC2) numeor de componenetes que salen de la factoria w  y van a los puertos p
+    C1Fabrica(fabricas,puertosC1) numero de componentes que son transportados del puerto l al centro de ensamblaje t
+    C2Fabrica(fabricas,puertosC2) numero de componentes que son transportado del puerto p al centro de ensamblaje t
 
 ;
 
 equations
     obj funcion objetivo que quiere maximizar los beneficios
-    prodMax1(q,l) produccion maxima en las factorias componente 1
-    prodMax2(w,p) produccion maxima en las factorias componente 2
-    prodMin1(q,l) produccion minimo en las factorias componente 1
-    prodMin2(w,p) produccion minimo en las factorias componente 2
-    MaxEsam(t,l,p)  capacidad maxima de ensamblaje de las fabricas de Madrid y Paris
-    ProdMaxPuertos1(t,l) producto maximo que puede circular por los puertos 1
-    ProdMaxPuertos2(t,p) producto maximo que puede circular por los puertos 2
-    MinMercado(i) minimo de producto que debe de llegar a los mercados
-    MaxMercado(i) maximo de producto que debe de llegar a los mercados
+    prodMax1(factC1) produccion maxima en las factorias componente 1
+    prodMax2(factC2) produccion maxima en las factorias componente 2
+    prodMin1 produccion minimo en las factorias componente 1
+    prodMin2 produccion minimo en las factorias componente 2
+    MaxEsam(fabricas)  capacidad maxima de ensamblaje de las fabricas de Madrid y Paris
+    Ensamblaje(fabricas)  funcion de ensamblaje
+    IgualarC1(puertosC1) igualar ruta maritima y carretera de un puerto componentes 1
+    IgualarC2(puertosC2) igualar ruta maritima y carretera de un puerto componentes 2
+
+    ProdMaxPuertos1(puertosC1) producto maximo que puede circular por los puertos 1
+    ProdMaxPuertos2(puertosC2) producto maximo que puede circular por los puertos 2
+    ProdMa componente 1 + 2 = 1 producto
+    MinMercado(mercados) minimo de producto que debe de llegar a los mercados
+    MaxMercado(mercados) maximo de producto que debe de llegar a los mercados
 ;
 
-obj.. sum(i,x(i)*Beneficio(i))-(sum((q,l),F(q,l)*CosteFP1(q,l))+sum((w,p),Y(w,p)*CosteFP2(w,p))+sum((t,l),G(t,l)*CostePC1(t,l))+sum((t,p),O(t,p)*CostePC2(t,p)))=e=z;
-prodMax1(q,l).. F(q,l)=l=ProdMaxFact1(q);
-prodMax2(w,p).. Y(w,p)=l=ProdMaxFact2(w);
-prodMin1(q,l).. F(q,l)=g=30000;
-prodMin2(w,p).. Y(w,p)=g=30000;
-MaxEsam(t,l,p).. G(t,l)+O(t,p)=l=CapaMaxEsam;
-ProdMaxPuertos1(t,l).. G(t,l)=l=ProductoPorPuerto;
-ProdMaxPuertos2(t,p).. O(t,p)=l=ProductoPorPuerto;
-MinMercado(i).. x(i)=g=MinDemanda;
-MaxMercado(i).. x(i)=l=MaxDemanda;
+obj.. sum(mercados,x(mercados)*Beneficio(mercados))-(sum((factC1,puertosC1),C1Puerto(factC1,puertosC1)*CosteFP1(factC1,puertosC1))+
+                                                     sum((factC2,puertosC2),C2Puerto(factC2,puertosC2)*CosteFP2(factC2,puertosC2))+
+                                                     sum((fabricas,puertosC1),C1Fabrica(fabricas,puertosC1)*CostePC1(fabricas,puertosC1))+
+                                                     sum((fabricas,puertosC2),C2Fabrica(fabricas,puertosC2)*CostePC2(fabricas,puertosC2)))=e=z;
+                                                     
+prodMax1(factC1).. sum(puertosC1,C1Puerto(factC1,puertosC1))=l=ProdMaxFact1(factC1);
+prodMax2(factC2).. sum(puertosC2,C2Puerto(factC2,puertosC2))=l=ProdMaxFact2(factC2);
+
+prodMin1.. sum((puertosC1,factC1),C1Puerto(factC1,puertosC1))=g=30000;
+prodMin2.. sum((puertosC2,factC2),C2Puerto(factC2,puertosC2))=g=30000;
+
+ProdMa.. sum((factC1,puertosC1),C1Puerto(factC1,puertosC1))+sum((factC2,puertosC2),C2Puerto(factC2,puertosC2)) =e= sum(mercados,x(mercados))*2;
+
+MaxEsam(fabricas).. sum(puertosC1,C1Fabrica(fabricas,puertosC1)) =l= CapaMaxEsam;
+Ensamblaje(fabricas)..  sum(puertosC1,C1Fabrica(fabricas,puertosC1)) =e=  sum(puertosC2,C2Fabrica(fabricas,puertosC2));
+
+IgualarC1(puertosC1).. sum(factC1,C1Puerto(factC1,puertosC1)) =e= sum(fabricas,C1Fabrica(fabricas,puertosC1));
+IgualarC2(puertosC2).. sum(factC2,C2Puerto(factC2,puertosC2)) =e= sum(fabricas,C2Fabrica(fabricas,puertosC2));
+
+ProdMaxPuertos1(puertosC1).. sum(fabricas,C1Fabrica(fabricas,puertosC1))=l=ProductoPorPuerto;
+ProdMaxPuertos2(puertosC2).. sum(fabricas,C2Fabrica(fabricas,puertosC2))=l=ProductoPorPuerto;
+
+MinMercado(mercados).. x(mercados)=g=MinDemanda;
+MaxMercado(mercados).. x(mercados)=l=MaxDemanda;
 
 
-Model producto /obj,prodMax1,prodMax2,prodMin1,prodMin2,MaxEsam,ProdMaxPuertos1,ProdMaxPuertos2,MinMercado,MaxMercado/
-
+*Model producto /obj,prodMax1,prodMax2,prodMin1,prodMin2,MaxEsam,ProdMaxPuertos1,ProdMaxPuertos2,MinMercado,MaxMercado/
+Model producto /all/
 Solve producto using lp maximizing z;
 
