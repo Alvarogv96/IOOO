@@ -52,41 +52,6 @@ Parameter
     ProdMaxFact2(w)    
           /C 35000
            D 15000 /
-
-*Capacidad maxima de esamblaje de las fabricas
-    CapaMaxEsam(t)
-        / Madrid 25000
-          Paris  25000 /
-
-*Cantidad maxima de producto que puede circular por cada puerto
-    ProductoPorPuerto1(l)
-        / Bilbao    18000
-          Roterdan  18000
-          Amberes   18000/
-
-    ProductoPorPuerto2(p)
-         /Barcelona 18000
-          Valencia  18000
-          Marsella  18000 /
-
-*Minimi de demanda del producto final a cada uno de los mercados
-    MinDemanda(i)
-        / AS    5000
-          AN    5000
-          EU    5000
-          AF    5000
-          ASI   5000
-          OC    5000 /
-
-*Maximo de demanda del prodcuto final a cada uno de los mercados
-    MaxDemanda(i)
-        / AS    10000
-          AN    10000
-          EU    10000
-          AF    10000
-          ASI   10000
-          OC    10000 /
-
 *Beneficio Obtenido por cada unidad
     Beneficio(i)
         / AS    20
@@ -95,6 +60,12 @@ Parameter
           AF    10
           ASI   15
           OC    12 /
+;
+scalar
+    CapaMaxEsam Capacidad maxima de esamblaje de las fabricas /25000/
+    ProductoPorPuerto Cantidad maxima de producto que puede circular por cada puerto /18000/
+    MinDemanda demanda minima de cada mercado /5000/
+    MaxDemanda demanda maxima de cada mercado /10000/
 ;
 Free variable
     z beneficio menos los costes
@@ -130,11 +101,11 @@ prodMax1(q,l).. F(q,l)=l=ProdMaxFact1(q);
 prodMax2(w,p).. Y(w,p)=l=ProdMaxFact2(w);
 prodMin1(q,l).. F(q,l)=g=30000;
 prodMin2(w,p).. Y(w,p)=g=30000;
-MaxEsam(t,l,p).. G(t,l)+O(t,p)=l=CapaMaxEsam(t);
-ProdMaxPuertos1(t,l).. G(t,l)=l=ProductoPorPuerto1(l);
-ProdMaxPuertos2(t,p).. O(t,p)=l=ProductoPorPuerto2(p);
-MinMercado(i).. x(i)=g=MinDemanda(i);
-MaxMercado(i).. x(i)=l=MaxDemanda(i);
+MaxEsam(t,l,p).. G(t,l)+O(t,p)=l=CapaMaxEsam;
+ProdMaxPuertos1(t,l).. G(t,l)=l=ProductoPorPuerto;
+ProdMaxPuertos2(t,p).. O(t,p)=l=ProductoPorPuerto;
+MinMercado(i).. x(i)=g=MinDemanda;
+MaxMercado(i).. x(i)=l=MaxDemanda;
 
 
 Model producto /obj,prodMax1,prodMax2,prodMin1,prodMin2,MaxEsam,ProdMaxPuertos1,ProdMaxPuertos2,MinMercado,MaxMercado/
