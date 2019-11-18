@@ -1,29 +1,37 @@
 B 2 C o m p i l a t i o n
-B 123 Equation Listing    SOLVE producto Using LP From line 112
-D 124 obj
-D 134 prodMax
-D 145 prodMin
-D 156 MaxEsam
-D 167 MinEsam
-D 178 ProdMaxPuertos
-D 189 MinMercado
-D 200 MaxMercado
-B 213 Column Listing      SOLVE producto Using LP From line 112
-E 214 z
-E 222 x
-E 244 F
-E 272 P
-B 308 Model Statistics    SOLVE producto Using LP From line 112
-B 324 Solution Report     SOLVE producto Using LP From line 112
-F 353 obj
-F 361 prodMax
-F 390 prodMin
-F 419 MaxEsam
-F 436 MinEsam
-F 453 ProdMaxPuertos
-F 506 MinMercado
-F 517 MaxMercado
-G 523 z
-G 529 x
-G 540 F
-G 569 P
+B 153 Equation Listing    SOLVE producto Using LP From line 142
+D 154 obj
+D 164 prodMax1
+D 175 prodMax2
+D 186 prodMin1
+D 197 prodMin2
+D 208 MaxEsam
+D 219 ProdMaxPuertos1
+D 230 ProdMaxPuertos2
+D 241 MinMercado
+D 252 MaxMercado
+B 265 Column Listing      SOLVE producto Using LP From line 142
+E 266 z
+E 274 x
+E 296 F
+E 318 Y
+E 340 G
+E 368 O
+B 398 Model Statistics    SOLVE producto Using LP From line 142
+B 414 Solution Report     SOLVE producto Using LP From line 142
+F 444 obj
+F 452 prodMax1
+F 463 prodMax2
+F 474 prodMin1
+F 485 prodMin2
+F 496 MaxEsam
+F 519 ProdMaxPuertos1
+F 530 ProdMaxPuertos2
+F 541 MinMercado
+F 552 MaxMercado
+G 558 z
+G 564 x
+G 575 F
+G 586 Y
+G 597 G
+G 608 O
