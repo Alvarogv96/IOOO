@@ -12,11 +12,11 @@ set
 TABLE
     CosteFP1(factC1,puertosC1) Coste de transporte por unidades desde las factorias A y B hasta los puertos 1
 
-          Bilbao    Roterdan   Amberes   
+          Bilbao    Roterdan   Amberes
 
-    A       9           8           2   
-    B       6           6           9   
- 
+    A       9           8           2
+    B       6           6           9
+
 ;
 
 TABLE
@@ -29,10 +29,10 @@ TABLE
 TABLE
     CostePC1(fabricas,puertosC1) Coste de transporte de unidades de los puertos 1 a los centros de ensamblaje
 
-            Bilbao  Roterdan    Amberes     
+            Bilbao  Roterdan    Amberes
 
-    Madrid     3        4           2          
-    Paris      4        2           3           
+    Madrid     3        4           2
+    Paris      4        2           3
 ;
 
 TABLE
@@ -49,7 +49,7 @@ Parameter
         / A 28000
           B 25000/
 *Produccion maxima de las factorias2
-    ProdMaxFact2(factC2)    
+    ProdMaxFact2(factC2)
           /C 35000
            D 15000 /
 *Beneficio Obtenido por cada unidad
@@ -77,7 +77,7 @@ Free variable
 *  Ptk numero de componenetes que son transportados del puerto k al centro de ensamblaje t
 positive variable
     x(mercados) numero de unidades vendidas en el mercado i
-    C1Puerto(factC1,puertosC1) numero de componenetes que salen de la  factoria q  y van a los puertos l  
+    C1Puerto(factC1,puertosC1) numero de componenetes que salen de la  factoria q  y van a los puertos l
     C2Puerto(factC2,puertosC2) numeor de componenetes que salen de la factoria w  y van a los puertos p
     C1Fabrica(fabricas,puertosC1) numero de componentes que son transportados del puerto l al centro de ensamblaje t
     C2Fabrica(fabricas,puertosC2) numero de componentes que son transportado del puerto p al centro de ensamblaje t
