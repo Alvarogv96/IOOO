@@ -1,9 +1,7 @@
 set
     mercados posiciones geograficas del mercado /AS,AN,EU,AF,ASI,OC/
-*   j factorias /A,B,C,D/
     factC1 factoria1 /A,B/
     factC2 factoria2 /C,D/
-*    k puertos /Bilbao,Roterdan,Amberes,Barcelona,Valencia,Marsella/
     puertosC1 puertos1/Bilbao,Roterdan,Amberes/
     puertosC2 puertos2 /Barcelona,Valencia,Marsella/
     fabricas centros de ensamblaje /Madrid, Paris/
@@ -69,12 +67,9 @@ scalar
 ;
 Free variable
     z beneficio menos los costes
-    z2 
+    z2
 ;
-*Vamos a tener  tres variables
-*  Xi numero de unidades vendidas en el mercado i
-*  Fjk numero de componentes que estan en la factoria j y van al puerto k
-*  Ptk numero de componenetes que son transportados del puerto k al centro de ensamblaje t
+
 positive variable
     x(mercados) numero de unidades vendidas en el mercado i
     C1Puerto(factC1,puertosC1) numero de componenetes que salen de la  factoria q  y van a los puertos l
@@ -92,29 +87,29 @@ equations
 
     prodMax1(factC1) produccion maxima en las factorias componente 1
     prodMax2(factC2) produccion maxima en las factorias componente 2
-    
+
     prodMin1 produccion minimo en las factorias componente 1
     prodMin2 produccion minimo en las factorias componente 2
-    
+
     MaxEsam(fabricas)  capacidad maxima de ensamblaje de las fabricas de Madrid y Paris
-    
+
     Ensamblaje(fabricas)  funcion de ensamblaje
-    
+
     IgualarC1(puertosC1) igualar ruta maritima y carretera de un puerto componentes 1
     IgualarC2(puertosC2) igualar ruta maritima y carretera de un puerto componentes 2
 
     ProdMaxPuertos1(puertosC1) producto maximo que puede circular por los puertos 1
     ProdMaxPuertos2(puertosC2) producto maximo que puede circular por los puertos 2
     ProdMa componente 1C + 2C = Producto
-    
-    
-    
+
+
+
     MinMercado(mercados) minimo de producto que debe de llegar a los mercados
     MaxMercado(mercados) maximo de producto que debe de llegar a los mercados
-    
+
     UtilizacionPuertos1(puertosC1)
     UtilizacionPuertos2(puertosC2)
-    
+
     solo2PuertosC1 solo dos puertos componente 1
     marsellaImpuesto solo dos puertos componente 1
 ;
@@ -123,14 +118,15 @@ obj.. sum(mercados,x(mercados)*Beneficio(mercados))-(sum((factC1,puertosC1),C1Pu
                                                      sum((factC2,puertosC2),C2Puerto(factC2,puertosC2)*CosteFP2(factC2,puertosC2))+
                                                      sum((fabricas,puertosC1),C1Fabrica(fabricas,puertosC1)*CostePC1(fabricas,puertosC1))+
                                                      sum((fabricas,puertosC2),C2Fabrica(fabricas,puertosC2)*CostePC2(fabricas,puertosC2)))=e=z;
-                                                     
+
 obj2.. sum(mercados,x(mercados)*Beneficio(mercados))-(sum((factC1,puertosC1),C1Puerto(factC1,puertosC1)*CosteFP1(factC1,puertosC1))+
                                                      sum((factC2,puertosC2),C2Puerto(factC2,puertosC2)*CosteFP2(factC2,puertosC2))+
                                                      sum((fabricas,puertosC1),C1Fabrica(fabricas,puertosC1)*CostePC1(fabricas,puertosC1))+
                                                      sum((fabricas,puertosC2),C2Fabrica(fabricas,puertosC2)*CostePC2(fabricas,puertosC2))+
-                                                     (Puerto2('Marsella')*5000))=e=z2;
+                                                     (Puerto2('Marsella')*5000)+
+                                                     sum(factC2,C2Puerto(factC2,'Marsella')))=e=z2;
 
-                                                     
+
 prodMax1(factC1).. sum(puertosC1,C1Puerto(factC1,puertosC1))=l=ProdMaxFact1(factC1);
 prodMax2(factC2).. sum(puertosC2,C2Puerto(factC2,puertosC2))=l=ProdMaxFact2(factC2);
 
@@ -153,10 +149,11 @@ MaxMercado(mercados).. x(mercados)=l=MaxDemanda;
 
 solo2PuertosC1.. sum(puertosC1,Puerto1(puertosC1))  =e=  2;
 
-UtilizacionPuertos1(puertosC1).. Puerto1(puertosC1)*ProductoPorPuerto+10 =g= sum(factC1,C1Puerto(factC1,puertosC1));
-UtilizacionPuertos2(puertosC2).. Puerto2(puertosC2)*ProductoPorPuerto+10 =g= sum(factC2,C2Puerto(factC2,puertosC2));
+UtilizacionPuertos1(puertosC1).. Puerto1(puertosC1)*ProductoPorPuerto =g= sum(factC1,C1Puerto(factC1,puertosC1));
+UtilizacionPuertos2(puertosC2).. Puerto2(puertosC2)*ProductoPorPuerto =g= sum(factC2,C2Puerto(factC2,puertosC2));
+
 
 Model fase1 /obj,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado/;
-Model fase2 /obj,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1/;
-Solve fase2 using MIP maximizing z;
+Model fase2 /obj2,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1/;
+Solve fase2 using MIP maximizing z2;
 
