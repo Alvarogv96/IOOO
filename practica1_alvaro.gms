@@ -121,8 +121,8 @@ equations
     solo2PuertosC1                 solo dos puertos componente 1
 
     C125min(fabricas,puertosC1) Los centros de ensamblaje deben recibir al menos el 25%
-    utilizarAhorro(fabricas)  
-    
+    utilizarAhorro(fabricas)    Si se puede disminuir en 10000 la capacidad de ensamblaje de las fabricas 
+
 
 ;
 *Fase 1
@@ -178,5 +178,5 @@ Model fase1 /obj,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,P
 
 Model fase2 /obj2,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1,C125min,utilizarAhorro/;
 
-Solve fase2 using MIP maximizing z2;
+Solve fase2 using MIP maximizing z;
 
