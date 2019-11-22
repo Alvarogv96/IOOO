@@ -68,11 +68,7 @@ scalar
     MaxDemanda demanda maxima de cada mercado /10000/
 ;
 Free variable
-    z beneficio menos los costes de la fase 1
-
-*Resultado de la funcion objetivo de  la fase  2
-
-    z2 beneficio  menos los costes de la fase 2
+    z beneficio menos los costes
 ;
 
 positive variable
@@ -135,14 +131,6 @@ obj.. sum(mercados,x(mercados)*Beneficio(mercados))-(sum((factC1,puertosC1),C1Pu
                                                      sum((fabricas,puertosC1),C1Fabrica(fabricas,puertosC1)*CostePC1(fabricas,puertosC1))+
                                                      sum((fabricas,puertosC2),C2Fabrica(fabricas,puertosC2)*CostePC2(fabricas,puertosC2)))=e=z;
 
-obj2.. sum(mercados,x(mercados)*Beneficio(mercados))-(sum((factC1,puertosC1),C1Puerto(factC1,puertosC1)*CosteFP1(factC1,puertosC1))+
-                                                     sum((factC2,puertosC2),C2Puerto(factC2,puertosC2)*CosteFP2(factC2,puertosC2))+
-                                                     sum((fabricas,puertosC1),C1Fabrica(fabricas,puertosC1)*CostePC1(fabricas,puertosC1))+
-                                                     sum((fabricas,puertosC2),C2Fabrica(fabricas,puertosC2)*CostePC2(fabricas,puertosC2))+
-                                                     (Puerto2('Marsella')*5000)+
-                                                     sum(factC2,C2Puerto(factC2,'Marsella'))+
-                                                     sum((fabricas),ahorroFra(fabricas)*ahorro)) =e= z;
-
 
 prodMax1(factC1).. sum(puertosC1,C1Puerto(factC1,puertosC1))=l=ProdMaxFact1(factC1);
 prodMax2(factC2).. sum(puertosC2,C2Puerto(factC2,puertosC2))=l=ProdMaxFact2(factC2);
@@ -170,7 +158,8 @@ obj2.. sum(mercados,x(mercados)*Beneficio(mercados))-(sum((factC1,puertosC1),C1P
                                                      sum((fabricas,puertosC1),C1Fabrica(fabricas,puertosC1)*CostePC1(fabricas,puertosC1))+
                                                      sum((fabricas,puertosC2),C2Fabrica(fabricas,puertosC2)*CostePC2(fabricas,puertosC2))+
                                                      (Puerto2('Marsella')*5000)+
-                                                     sum(factC2,C2Puerto(factC2,'Marsella')))=e=z2;
+                                                     sum(factC2,C2Puerto(factC2,'Marsella'))+
+                                                     sum((fabricas),ahorroFra(fabricas)*ahorro)) =e= z;
 
 solo2PuertosC1.. sum(puertosC1,Puerto1(puertosC1))  =e=  2;
 
@@ -185,11 +174,10 @@ utilizarAhorro(fabricas)..  ahorroFra(fabricas)*CapaMaxEsamAhorro =g= CapaMaxEsa
 
 
 Model fase1 /obj,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado/;
-Model fase2 /obj2,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1,C125min,utilizarAhorro/;
 
 *Fase 2
 
-Model fase2 /obj2,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1,C125min/;
+Model fase2 /obj2,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1,C125min,utilizarAhorro/;
 
-Solve fase2 using MIP maximizing z2;
+Solve fase2 using MIP maximizing z;
 
