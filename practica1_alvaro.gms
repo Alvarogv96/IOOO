@@ -72,9 +72,9 @@ Free variable
 ;
 
 positive variable
-    x(mercados) numero de unidades vendidas en el mercado i
-    C1Puerto(factC1,puertosC1) numero de componenetes que salen de la  factoria q  y van a los puertos l
-    C2Puerto(factC2,puertosC2) numeor de componenetes que salen de la factoria w  y van a los puertos p
+    x(mercados)                   numero de unidades vendidas en el mercado i
+    C1Puerto(factC1,puertosC1)    numero de componenetes que salen de la  factoria q  y van a los puertos l
+    C2Puerto(factC2,puertosC2)    numeor de componenetes que salen de la factoria w  y van a los puertos p
     C1Fabrica(fabricas,puertosC1) numero de componentes que son transportados del puerto l al centro de ensamblaje t
     C2Fabrica(fabricas,puertosC2) numero de componentes que son transportado del puerto p al centro de ensamblaje t
 ;
@@ -89,36 +89,36 @@ binary variable
 equations
 
 *Fase 1
-    obj funcion objetivo que quiere maximizar los beneficios
+    obj                          funcion objetivo que quiere maximizar los beneficios
 
-    prodMax1(factC1) produccion maxima en las factorias componente 1
-    prodMax2(factC2) produccion maxima en las factorias componente 2
+    prodMax1(factC1)             produccion maxima en las factorias componente 1
+    prodMax2(factC2)             produccion maxima en las factorias componente 2
 
-    prodMin1 produccion minimo en las factorias componente 1
-    prodMin2 produccion minimo en las factorias componente 2
+    prodMin1                     produccion minimo en las factorias componente 1
+    prodMin2                     produccion minimo en las factorias componente 2
 
-    MaxEsam(fabricas)  capacidad maxima de ensamblaje de las fabricas de Madrid y Paris
+    MaxEsam(fabricas)            capacidad maxima de ensamblaje de las fabricas de Madrid y Paris
 
-    IgualarC1(puertosC1) igualar ruta maritima y carretera de un puerto componentes 1
-    IgualarC2(puertosC2) igualar ruta maritima y carretera de un puerto componentes 2
+    IgualarC1(puertosC1)         igualar ruta maritima y carretera de un puerto componentes 1
+    IgualarC2(puertosC2)         igualar ruta maritima y carretera de un puerto componentes 2
 
-    Ensamblaje(fabricas)  funcion de ensamblaje
+    Ensamblaje(fabricas)         funcion de ensamblaje
 
-    ProdMaxPuertos1(puertosC1) producto maximo que puede circular por los puertos 1
-    ProdMaxPuertos2(puertosC2) producto maximo que puede circular por los puertos 2
-    ProdMa componente 1C + 2C = Producto
+    ProdMaxPuertos1(puertosC1)   producto maximo que puede circular por los puertos 1
+    ProdMaxPuertos2(puertosC2)   producto maximo que puede circular por los puertos 2
+    ProdMa                       componente 1C + 2C = Producto
 
-    MinMercado(mercados) minimo de producto que debe de llegar a los mercados
-    MaxMercado(mercados) maximo de producto que debe de llegar a los mercados
+    MinMercado(mercados)         minimo de producto que debe de llegar a los mercados
+    MaxMercado(mercados)         maximo de producto que debe de llegar a los mercados
 
 
 *Fase 2
-    obj2 funcion objetivo que quiere maximizar los beneficios
+    obj2                           funcion objetivo que quiere maximizar los beneficios
 
-    UtilizacionPuertos1(puertosC1)
-    UtilizacionPuertos2(puertosC2)
+    UtilizacionPuertos1(puertosC1) solo se puede elegir dos puertos de los tres que se encargan del componente 1
+    UtilizacionPuertos2(puertosC2) ecuacion que se usa para elegir los puertos que se encargan del componente 2
 
-    solo2PuertosC1 solo dos puertos componente 1
+    solo2PuertosC1                 solo dos puertos componente 1
 
     C125min(fabricas,puertosC1) Los centros de ensamblaje deben recibir al menos el 25%
     utilizarAhorro(fabricas)  
@@ -131,20 +131,19 @@ obj.. sum(mercados,x(mercados)*Beneficio(mercados))-(sum((factC1,puertosC1),C1Pu
                                                      sum((fabricas,puertosC1),C1Fabrica(fabricas,puertosC1)*CostePC1(fabricas,puertosC1))+
                                                      sum((fabricas,puertosC2),C2Fabrica(fabricas,puertosC2)*CostePC2(fabricas,puertosC2)))=e=z;
 
+prodMax1(factC1)..       sum(puertosC1,C1Puerto(factC1,puertosC1))=l=ProdMaxFact1(factC1);
+prodMax2(factC2)..       sum(puertosC2,C2Puerto(factC2,puertosC2))=l=ProdMaxFact2(factC2);
 
-prodMax1(factC1).. sum(puertosC1,C1Puerto(factC1,puertosC1))=l=ProdMaxFact1(factC1);
-prodMax2(factC2).. sum(puertosC2,C2Puerto(factC2,puertosC2))=l=ProdMaxFact2(factC2);
+prodMin1..       sum((puertosC1,factC1),C1Puerto(factC1,puertosC1))=g=30000;
+prodMin2..       sum((puertosC2,factC2),C2Puerto(factC2,puertosC2))=g=30000;
 
-prodMin1.. sum((puertosC1,factC1),C1Puerto(factC1,puertosC1))=g=30000;
-prodMin2.. sum((puertosC2,factC2),C2Puerto(factC2,puertosC2))=g=30000;
+ProdMa..         sum((factC1,puertosC1),C1Puerto(factC1,puertosC1))+sum((factC2,puertosC2),C2Puerto(factC2,puertosC2)) =e= sum(mercados,x(mercados))*2;
 
-ProdMa.. sum((factC1,puertosC1),C1Puerto(factC1,puertosC1))+sum((factC2,puertosC2),C2Puerto(factC2,puertosC2)) =e= sum(mercados,x(mercados))*2;
+MaxEsam(fabricas)..      sum(puertosC1,C1Fabrica(fabricas,puertosC1)) =l= CapaMaxEsam;
+Ensamblaje(fabricas)..   sum(puertosC1,C1Fabrica(fabricas,puertosC1)) =e=  sum(puertosC2,C2Fabrica(fabricas,puertosC2));
 
-MaxEsam(fabricas).. sum(puertosC1,C1Fabrica(fabricas,puertosC1)) =l= CapaMaxEsam;
-Ensamblaje(fabricas)..  sum(puertosC1,C1Fabrica(fabricas,puertosC1)) =e=  sum(puertosC2,C2Fabrica(fabricas,puertosC2));
-
-IgualarC1(puertosC1).. sum(factC1,C1Puerto(factC1,puertosC1)) =e= sum(fabricas,C1Fabrica(fabricas,puertosC1));
-IgualarC2(puertosC2).. sum(factC2,C2Puerto(factC2,puertosC2)) =e= sum(fabricas,C2Fabrica(fabricas,puertosC2));
+IgualarC1(puertosC1)..   sum(factC1,C1Puerto(factC1,puertosC1)) =e= sum(fabricas,C1Fabrica(fabricas,puertosC1));
+IgualarC2(puertosC2)..   sum(factC2,C2Puerto(factC2,puertosC2)) =e= sum(fabricas,C2Fabrica(fabricas,puertosC2));
 
 ProdMaxPuertos1(puertosC1).. sum(fabricas,C1Fabrica(fabricas,puertosC1))=l=ProductoPorPuerto;
 ProdMaxPuertos2(puertosC2).. sum(fabricas,C2Fabrica(fabricas,puertosC2))=l=ProductoPorPuerto;
@@ -179,5 +178,5 @@ Model fase1 /obj,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,P
 
 Model fase2 /obj2,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1,C125min,utilizarAhorro/;
 
-Solve fase2 using MIP maximizing z;
+Solve fase2 using MIP maximizing z2;
 
