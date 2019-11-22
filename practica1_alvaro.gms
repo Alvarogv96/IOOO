@@ -61,6 +61,8 @@ Parameter
 ;
 scalar
     CapaMaxEsam Capacidad maxima de esamblaje de las fabricas /25000/
+    CapaMaxEsamAhorro Capacidad maxima de esamblaje de las fabricas /15000/
+    ahorro Capacidad maxima de esamblaje de las fabricas /10000/
     ProductoPorPuerto Cantidad maxima de producto que puede circular por cada puerto /18000/
     MinDemanda demanda minima de cada mercado /5000/
     MaxDemanda demanda maxima de cada mercado /10000/
@@ -79,7 +81,9 @@ positive variable
 ;
 binary variable
     Puerto1(puertosC1)
-    Puerto2(puertosC2);
+    Puerto2(puertosC2)
+    ahorroFra(fabricas)
+    ;
 
 equations
     obj funcion objetivo que quiere maximizar los beneficios
@@ -114,6 +118,8 @@ equations
     marsellaImpuesto solo dos puertos componente 1
 
     C125min(fabricas,puertosC1) Los centros de ensamblaje deben recibir al menos el 25%
+    utilizarAhorro(fabricas)  
+    
 
 ;
 
@@ -127,7 +133,8 @@ obj2.. sum(mercados,x(mercados)*Beneficio(mercados))-(sum((factC1,puertosC1),C1P
                                                      sum((fabricas,puertosC1),C1Fabrica(fabricas,puertosC1)*CostePC1(fabricas,puertosC1))+
                                                      sum((fabricas,puertosC2),C2Fabrica(fabricas,puertosC2)*CostePC2(fabricas,puertosC2))+
                                                      (Puerto2('Marsella')*5000)+
-                                                     sum(factC2,C2Puerto(factC2,'Marsella')))=e=z2;
+                                                     sum(factC2,C2Puerto(factC2,'Marsella'))+
+                                                     sum((fabricas),ahorroFra(fabricas)*ahorro)) =e= z;
 
 
 prodMax1(factC1).. sum(puertosC1,C1Puerto(factC1,puertosC1))=l=ProdMaxFact1(factC1);
@@ -156,9 +163,12 @@ UtilizacionPuertos1(puertosC1).. Puerto1(puertosC1)*ProductoPorPuerto =g= sum(fa
 UtilizacionPuertos2(puertosC2).. Puerto2(puertosC2)*ProductoPorPuerto =g= sum(factC2,C2Puerto(factC2,puertosC2));
 
 C125min(fabricas,puertosC1).. C1Fabrica(fabricas,puertosC1) =g= 0.25*sum(puertosC2,C2Fabrica(fabricas,puertosC2))-900000*(1-Puerto1(puertosC1));
+utilizarAhorro(fabricas)..  ahorroFra(fabricas)*CapaMaxEsamAhorro =g= CapaMaxEsamAhorro - ((sum(puertosC1,C1Fabrica(fabricas,puertosC1)) + sum(puertosC2,C2Fabrica(fabricas,puertosC2)))/2)
+
+
 
 
 Model fase1 /obj,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado/;
-Model fase2 /obj2,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1,C125min/;
-Solve fase2 using MIP maximizing z2;
+Model fase2 /obj2,prodMax1,prodMax2,prodMin1,prodMin2,ProdMa,MaxEsam,Ensamblaje,ProdMaxPuertos1,ProdMaxPuertos2,IgualarC1,IgualarC2,MinMercado,MaxMercado,UtilizacionPuertos1,UtilizacionPuertos2,solo2PuertosC1,C125min,utilizarAhorro/;
+Solve fase2 using MIP maximizing z;
 
