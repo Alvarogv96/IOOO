@@ -81,9 +81,9 @@ positive variable
 binary variable
 *Variables binarias para la fase 2
 
-    Puerto1(puertosC1)
-    Puerto2(puertosC2)
-    ahorroFra(fabricas)
+    Puerto1(puertosC1)  1 si se elige el puerto del componente 1 y 0 en otro caso
+    Puerto2(puertosC2)  1 si se elige el puerto del componente 2 y 0 en otro caso
+    ahorroFra(fabricas) 1 Si la fabrica utiliza menos de 15.000 ahorra y  0 en otro caso
     ;
 
 equations
@@ -121,7 +121,7 @@ equations
     solo2PuertosC1                 solo dos puertos componente 1
 
     C125min(fabricas,puertosC1) Los centros de ensamblaje deben recibir al menos el 25%
-    utilizarAhorro(fabricas)    Si se puede disminuir en 10000 la capacidad de ensamblaje de las fabricas 
+    utilizarAhorro(fabricas)    Si se puede disminuir en 10000 la capacidad de ensamblaje de las fabricas
 
 
 ;
